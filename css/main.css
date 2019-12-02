@@ -1,0 +1,39 @@
+@font-face {
+    font-family: minecraft;
+    src: url("../fonts/Minecrafter.Reg.ttf");
+}
+
+* {
+    font-family: minecraft;
+}
+
+body {
+    display: flex;
+    margin: 0;
+}
+
+#game-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-grow: 1;
+    background: url("../img/dirt.png");
+}
+
+#toolkit {
+    width: 150px;
+    background: black;
+}
+
+#logo {
+    width: 40vw;
+}
+
+.start-game {
+    background: white;
+    padding: 5px 20px;
+    border: none;
+    font-size: 1.2em;
+}
