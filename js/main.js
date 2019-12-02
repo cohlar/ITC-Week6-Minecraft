@@ -4,41 +4,43 @@ window.onload = function () {
 
     class Tool {
         constructor(name, tileType) {
-            this.name = name;
-            this.tileType = tileType;
-            this.imgPath = "img/tools/" + name + ".png";
+            this.name      = name;
+            this.tileType  = tileType;
+            this.imgPath   = "img/tools/" + name + ".png";
         }
     }
 
     class Tile {
-        constructor(name) {
-            this.name = name;
-            this.imgPath = "img/tiles/" + name + ".png";
+        constructor(tileType, tileLevel) {
+            this.tileType  = tileType;
+            this.name      = this.tileType;
+            this.imgPath   = "img/tiles/" + name + ".png";
+            this.tileLevel = tileLevel ? tileLevel : 1;
         }
     }
 
     const Minecraft = {
-        html: {
+        html:  {
             gameContainer: $('#game-container'),
-            toolkit: $('#toolkit'),
+            toolkit:       $('#toolkit'),
         },
         tools: {
-            axe: new Tool("axe", "tree"),
+            axe:     new Tool("axe", "tree"),
             pickaxe: new Tool("pickaxe", "rock"),
-            shovel: new Tool("shovel", "dirt"),
+            shovel:  new Tool("shovel", "dirt"),
         },
         tiles: {
             diamond: new Tile("diamond"),
-            dirt: new Tile("dirt"),
-            fence: new Tile("fence"),
-            gate: new Tile("gate"),
-            grass: new Tile("grass"),
-            lava: new Tile("lava"),
-            leaf: new Tile("leaf"),
-            rock: new Tile("rock"),
-            stone: new Tile("stone"),
-            tnt: new Tile("tnt"),
-            tree: new Tile("tree"),
+            dirt:    new Tile("dirt", 0),
+            fence:   new Tile("fence"),
+            gate:    new Tile("gate"),
+            grass:   new Tile("grass", 0),
+            lava:    new Tile("lava", 0),
+            leaf:    new Tile("leaf"),
+            rock:    new Tile("rock"),
+            stone:   new Tile("stone"),
+            tnt:     new Tile("tnt"),
+            tree:    new Tile("tree"),
         },
     }
 
@@ -57,9 +59,12 @@ window.onload = function () {
         }
     };
 
+
+
+    // --------------------------------------------------------------------------------------
     // General functions that may be reused outside this projects
     function build2dArray(numOfRows, numOfCols) {
-        const matrix = new Array(numOfRows);
+        const matrix  = new Array(numOfRows);
 
         let i = -1;
         while (++i < numOfRows) {
@@ -68,6 +73,8 @@ window.onload = function () {
         return matrix;
     }
 
+    // --------------------------------------------------------------------------------------
     // And this is where all the magic happens
     Minecraft.init();
-};
+// ------------------------------------------------------------------------------------------
+}
