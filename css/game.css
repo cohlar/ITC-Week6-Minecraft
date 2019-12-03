@@ -46,4 +46,10 @@
     display: flex;
     flex-wrap: wrap;
     background-color: var(--sky-blue);
+    /*height: 100vh;   */
+    /*width: auto;*/
+}
+
+#game-grid > div {
+    background-color: blue;
 }

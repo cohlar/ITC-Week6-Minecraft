@@ -8,9 +8,10 @@
         constructor(name, type) {
             this.name          = name;
             this.type          = type;
-            this.types         = type + "s";
+            this.types         = type + 's';
             this.imgFolderName = this.types;
             this.imgPath       = 'img/' + this.imgFolderName + '/' + name + '.png';
+            this.cursorImgPath = 'img/cursors/' + name + '.png';
         }
     }
 
@@ -30,6 +31,9 @@
     const Minecraft = {
         html: {
             $gameContainer: $('#game-container'),
+            $gameContainer:  $('#game-container'),
+            $gameGrid:      undefined,
+            $tiles:         undefined,
             $toolkit:       $('#toolkit'),
             $tools:         undefined,
         },
@@ -77,40 +81,41 @@
 
     // Event handlers
     Minecraft.setActiveElementEventHandler = function() {
-        Minecraft.activeElement = Minecraft[$(this).attr("data-type")][this.id];
+        Minecraft.activeElement = Minecraft[$(this).attr('data-type')][this.id];
+        $('#game-container').css('cursor', 'url(' + Minecraft.activeElement.cursorImgPath + '), auto');
     };
-
 
     class TileGridUI {
         constructor(numOfRows) {
             this.numOfRows = numOfRows ? numOfRows : 14;
             this.tileSize  = Minecraft.html.$gameContainer.height() / this.numOfRows;
             this.numOfCols = Math.floor(Minecraft.html.$gameContainer.height() / this.tileSize);
-            this.matrix    = build2dArray(numOfRows, numOfCols);
-            this.$node     = this.buildGridNode();
+            this.matrix    = build2dArray(this.numOfRows, this.numOfCols);
+            this.$node     = this.initGameGrid();
         }
 
-        buildGridNode() {
+        initGameGrid() {
             const $node = $( '<div />' );
             $node.attr('id', 'game-grid');
             Minecraft.html.$gameContainer.css('background', 'none');
             Minecraft.html.$gameContainer.html($node);
+            return $node
         }
 
-        injectMatrixWithTiles(rowNumber) {
-            let row = (rowNumber || rowNumber === 0) ? rowNumber : this.numOfRows;
+        injectMatrixWithTiles() {
+            let row = this.numOfRows;
+            while (--row >= 0) {
 
-            if (--row >= 0) {
                 let col = this.numOfCols;
 
                 while (--col >= 0) {
-                    pickedTile = Minecraft.tiles.dirt // randomPickTile()
-                    appendTileNode(Minecraft.tiles.dirt);
-                    
-                    this.matrix[row][col] = Minecraft.tiles.dirt;
-                    this.injectMatrixWithTiles(row);
+                    const pickedTile = Minecraft.tiles.dirt; // randomPickTile()
+
+                    this.appendTileNode(Minecraft.tiles.dirt, row, col);
+                    this.matrix[row][col] = pickedTile;
                 }
             }
+
         }
 
         appendTileNode(tileInstance, row, col) {
@@ -120,9 +125,13 @@
                 'data-row': row,
                 'data-col': col,
             });
-            $tileNode.css('background-image', url(tileInstance.imgPath));
+            $tileNode.css({
+                backgroundImage: `url(${tileInstance.imgPath})`,
+                height: this.tileSize,
+                width: this.tileSize,
+            });
 
-            this.$container.prepend($tileNode); // Prepend because the matrix is built from bottom right to top left
+            this.$node.prepend($tileNode); // Prepend because the matrix is built from bottom right to top left
         }
 
         tileExistsBelow(tileRow, tileCol) {
@@ -138,6 +147,12 @@
         }
 
     }
+
+   // let a = new TileGridUI();
+   // a.injectMatrixWithTiles();
+   //  console.log(a);
+
+
 
     // --------------------------------------------------------------------------------------
     // General functions that may be reused outside this project
@@ -156,3 +171,15 @@
     Minecraft.init();
 // ------------------------------------------------------------------------------------------
 // } // MAKE SURE TO UNCOMMENT ON DEPLOY ####################################################
+
+
+
+    // // TEMPORARY, REMOVE
+    // let gameGrid = build2dArray(4,4);
+    // for (let j = 0 ; j < 4 ; j++) {
+    //     gameGrid[0][j] = ;
+    //     gameGrid[1][j] = ;
+    //     gameGrid[2][j] = ;
+    //     gameGrid[3][j] = ;
+    // }
+    // // REMOVE UNTIL HERE
