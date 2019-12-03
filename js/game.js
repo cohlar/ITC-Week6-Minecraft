@@ -32,11 +32,12 @@
         html: {
             $gameContainer:         $('#game-container'),
             $gameGrid:              undefined,
-            $tiles:                 undefined,
+            $gameGridElements:      undefined,
             $toolkit:               $('#toolkit'),
             $toolkitToolsContainer: $('#tools-container'),
             $toolkitTilesContainer: $('#tiles-container'),
             $toolkitElements:       undefined,
+            $startBtn:              $('.start-game'),
         },
         tools: {
             axe:        new Tool('axe', 'tree'),
@@ -57,13 +58,14 @@
             tnt:     new Tile('tnt'),
             tree:    new Tile('tree'),
         },
-        activeElement: undefined,
+        uiGrid:         undefined,
+        activeElement:  undefined,
     }
 
     // Initiates the game page
     Minecraft.init = function () {
         this.generateHTML();
-        this.html.$toolkitElements.on('click', this.setActiveElementEventHandler);
+        this.html.$startBtn.one('click', this.startGame.bind(this));   // C'est la guerre ce one!
     };
 
     // Generate HTML elements
@@ -92,6 +94,25 @@
     };
 
     // Event handlers
+    Minecraft.startGame = function () {
+        this.uiGrid = new TileGridUI(14);
+        this.uiGrid.injectMatrixWithTiles();
+        this.html.$gameGridElements = $('.tile');
+        this.html.$gameGridElements.on('click', this.actionTile);  // J'ai pas trouve mieux comme nom de fonction
+        this.html.$toolkitElements.on('click', this.setActiveElementEventHandler);
+    };
+
+    Minecraft.actionTile = function () {
+        const [row, col] = [ $( this ).attr('data-row') , $( this ).attr('data-col') ];
+        if ( Minecraft.activeElement instanceof Tool &&         // Ce if doit pouvoir etre simplifie... mais deja il marche :)
+                Minecraft.uiGrid.matrix[row][col] !== null &&
+                Minecraft.activeElement.tileType === Minecraft.uiGrid.matrix[row][col].name
+            ) {
+            Minecraft.uiGrid.matrix[row][col] = null;
+            $( this ).css('background', 'none');
+        }
+    };
+
     Minecraft.setActiveElementEventHandler = function() {
         Minecraft.activeElement = Minecraft[$(this).attr('data-type')][this.id];
         Minecraft.html.$gameContainer.css('cursor', 'url(' + Minecraft.activeElement.cursorImgPath + '), auto');
@@ -99,6 +120,7 @@
         $( this ).toggleClass('active');
     };
 
+    // UI
     class TileGridUI {
         constructor(numOfRows) {
             this.numOfRows = numOfRows ? numOfRows : 14;
@@ -129,13 +151,13 @@
                     this.matrix[row][col] = pickedTile;
                 }
             }
-
         }
 
         appendTileNode(tileInstance, row, col) {
             const $tileNode = $( '<div />' )
 
             $tileNode.attr({
+                'class':    'tile',
                 'data-row': row,
                 'data-col': col,
             });
