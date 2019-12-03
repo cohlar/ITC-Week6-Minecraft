@@ -30,22 +30,25 @@
 
     const Minecraft = {
         html: {
-            $gameContainer: $('#game-container'),
-            $gameContainer:  $('#game-container'),
-            $gameGrid:      undefined,
-            $tiles:         undefined,
-            $toolkit:       $('#toolkit'),
-            $tools:         undefined,
+            $gameContainer:         $('#game-container'),
+            $gameGrid:              undefined,
+            $tiles:                 undefined,
+            $toolkit:               $('#toolkit'),
+            $toolkitToolsContainer: $('#tools-container'),
+            $toolkitTilesContainer: $('#tiles-container'),
+            $tools:                 undefined,
+            $tiles:                 undefined,
         },
         tools: {
-            axe:     new Tool('axe', 'tree'),
-            pickaxe: new Tool('pickaxe', 'rock'),
-            shovel:  new Tool('shovel', 'dirt'),
+            axe:        new Tool('axe', 'tree'),
+            pickaxe:    new Tool('pickaxe', 'rock'),
+            shovel:     new Tool('shovel', 'dirt'),
+            tbd:        new Tool('eraser', 'tbd'),
         },
         tiles: {
             diamond: new Tile('diamond'),
             dirt:    new Tile('dirt'),
-            fence:   new Tile('fence'),
+            // fence:   new Tile('fence'),
             gate:    new Tile('gate'),
             grass:   new Tile('grass'),
             lava:    new Tile('lava'),
@@ -69,14 +72,26 @@
         for (const tool in this.tools) {
             const $toolContainer = $('<div />').attr({
                 'id': tool,
-                'class': 'tool-container',
+                'class': 'toolkit-element',
                 'data-type': this.tools[tool].types,
             });
             $toolContainer.append($('<img />').attr('src', this.tools[tool].imgPath));
             $toolContainer.append($('<p />').html(this.tools[tool].name));
-            this.html.$toolkit.append($toolContainer);
+            this.html.$toolkitToolsContainer.append($toolContainer);
         }
         this.html.$tools = $('.tool-container');
+
+        for (const tile in this.tiles) {
+            const $tileContainer = $('<div />').attr({
+                'id': tile,
+                'class': 'toolkit-element',
+                'data-type': this.tiles[tile].types,
+            });
+            $tileContainer.append($('<img />').attr('src', this.tiles[tile].imgPath));
+            $tileContainer.append($('<p />').html(this.tiles[tile].name));
+            this.html.$toolkitTilesContainer.append($tileContainer);
+        }
+        this.html.$tiles = $('.tile-container');
     };
 
     // Event handlers
