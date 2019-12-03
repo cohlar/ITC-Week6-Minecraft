@@ -86,7 +86,7 @@
             this.numOfRows = numOfRows;
             this.numOfCols = numOfCols;
             this.matrix    = build2dArray(numOfRows, numOfCols);
-            this.node      = Minecraft.html.gameContainer;
+            this.$node      = Minecraft.html.gameContainer;
         }
 
         injectMatrixWithTiles(rowNumber) {
@@ -96,18 +96,25 @@
                 let col = this.numOfCols;
 
                 while (--col >= 0) {
-                    // randomizeTileFunction
+                    pickedTile = Minecraft.tiles.dirt // randomPickTile()
+                    appendTileNode(Minecraft.tiles.dirt);
+                    
                     this.matrix[row][col] = Minecraft.tiles.dirt;
                     this.injectMatrixWithTiles(row);
                 }
             }
         }
 
-        appendTileNode(tileInstance) {
-            const $tileNode = $( '<div />' ).attr('data-col', tileInstance.col);
+        appendTileNode(tileInstance, row, col) {
+            const $tileNode = $( '<div />' )
 
-            $tileNode.append($( '<img />' ).attr('src', tileInstance.imgPath));
-            tileInstance.node = $tileNode;
+            $tilenode.attr({
+                'data-row': row;
+                'data-col': col;
+            });
+            $tilenode.css('background-image', url(tileInstance.imgPath));
+
+            this.$node.prepend($tileNode); // Prepend because the matrix is built from bottom right to top left
         }
 
         tileExistsBelow(tileRow, tileCol) {
@@ -121,11 +128,13 @@
         generateGridHTML() {
             
         }
+
     }
+
     // --------------------------------------------------------------------------------------
     // General functions that may be reused outside this project
     function build2dArray(numOfRows, numOfCols) {
-        const matrix = new Array(numOfRows);
+        const matrix  = new Array(numOfRows);
 
         let i = -1;
         while (++i < numOfRows) {
