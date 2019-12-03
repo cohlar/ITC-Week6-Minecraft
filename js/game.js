@@ -36,8 +36,7 @@
             $toolkit:               $('#toolkit'),
             $toolkitToolsContainer: $('#tools-container'),
             $toolkitTilesContainer: $('#tiles-container'),
-            $tools:                 undefined,
-            $tiles:                 undefined,
+            $toolkitElements:       undefined,
         },
         tools: {
             axe:        new Tool('axe', 'tree'),
@@ -64,7 +63,7 @@
     // Initiates the game page
     Minecraft.init = function () {
         this.generateHTML();
-        this.html.$tools.on('click', this.setActiveElementEventHandler);
+        this.html.$toolkitElements.on('click', this.setActiveElementEventHandler);
     };
 
     // Generate HTML elements
@@ -79,8 +78,6 @@
             $toolContainer.append($('<p />').html(this.tools[tool].name));
             this.html.$toolkitToolsContainer.append($toolContainer);
         }
-        this.html.$tools = $('.tool-container');
-
         for (const tile in this.tiles) {
             const $tileContainer = $('<div />').attr({
                 'id': tile,
@@ -91,13 +88,15 @@
             $tileContainer.append($('<p />').html(this.tiles[tile].name));
             this.html.$toolkitTilesContainer.append($tileContainer);
         }
-        this.html.$tiles = $('.tile-container');
+        this.html.$toolkitElements = $('.toolkit-element');
     };
 
     // Event handlers
     Minecraft.setActiveElementEventHandler = function() {
         Minecraft.activeElement = Minecraft[$(this).attr('data-type')][this.id];
-        $('#game-container').css('cursor', 'url(' + Minecraft.activeElement.cursorImgPath + '), auto');
+        Minecraft.html.$gameContainer.css('cursor', 'url(' + Minecraft.activeElement.cursorImgPath + '), auto');
+        $('.toolkit-element.active').toggleClass('active');
+        $( this ).toggleClass('active');
     };
 
     class TileGridUI {

@@ -45,13 +45,14 @@
     cursor: grab;
 }
 
-#toolkit  .toolkit-element img {
+#toolkit .toolkit-element img {
     width: 54px;
 }
 
 #toolkit .toolkit-element p {
     color: black;
     margin: 3px 0;
+    font-size: 10px;
 }
 
 #game-grid {
@@ -69,5 +70,8 @@
 
 #toolkit .toolkit-element:hover {
     border-color: rgba(0, 38, 255, 1);
+}
 
+#toolkit .toolkit-element.active {
+    border-color: rgba(0, 38, 255, 1);
 }
