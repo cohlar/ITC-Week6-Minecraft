@@ -29,7 +29,7 @@
 
     const Minecraft = {
         html: {
-            $ameContainer: $('#game-container'),
+            $gameContainer: $('#game-container'),
             $toolkit:       $('#toolkit'),
             $tools:         undefined,
         },
@@ -82,11 +82,19 @@
 
 
     class TileGridUI {
-        constructor(numOfRows, numOfCols) {
-            this.numOfRows = numOfRows;
-            this.numOfCols = numOfCols;
+        constructor(numOfRows) {
+            this.numOfRows = numOfRows ? numOfRows : 14;
+            this.tileSize  = Minecraft.html.$gameContainer.height() / this.numOfRows;
+            this.numOfCols = Math.floor(Minecraft.html.$gameContainer.height() / this.tileSize);
             this.matrix    = build2dArray(numOfRows, numOfCols);
-            this.$node      = Minecraft.html.gameContainer;
+            this.$node     = this.buildGridNode();
+        }
+
+        buildGridNode() {
+            const $node = $( '<div />' );
+            $node.attr('id', 'game-grid');
+            Minecraft.html.$gameContainer.css('background', 'none');
+            Minecraft.html.$gameContainer.html($node);
         }
 
         injectMatrixWithTiles(rowNumber) {
@@ -108,13 +116,13 @@
         appendTileNode(tileInstance, row, col) {
             const $tileNode = $( '<div />' )
 
-            $tilenode.attr({
-                'data-row': row;
-                'data-col': col;
+            $tileNode.attr({
+                'data-row': row,
+                'data-col': col,
             });
-            $tilenode.css('background-image', url(tileInstance.imgPath));
+            $tileNode.css('background-image', url(tileInstance.imgPath));
 
-            this.$node.prepend($tileNode); // Prepend because the matrix is built from bottom right to top left
+            this.$container.prepend($tileNode); // Prepend because the matrix is built from bottom right to top left
         }
 
         tileExistsBelow(tileRow, tileCol) {
