@@ -1,3 +1,8 @@
+:root{
+    --sky-blue: deepskyblue;
+    /*--sky-blue: lightskyblue;*/
+}
+
 #game-container {
     display: flex;
     flex-direction: column;
@@ -47,9 +52,22 @@
 #toolkit .toolkit-element p {
     color: black;
     margin: 3px 0;
+}
+
+#game-grid {
+    display: flex;
+    flex-wrap: wrap;
+    background-color: var(--sky-blue);
+    /*height: 100vh;   */
+    /*width: auto;*/
+}
+
+#game-grid > div {
+    background-color: blue;
     font-size: 10px;
 }
 
 #toolkit .toolkit-element:hover {
     border-color: rgba(0, 38, 255, 1);
+
 }

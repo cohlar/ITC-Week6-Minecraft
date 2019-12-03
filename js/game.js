@@ -101,32 +101,52 @@
     };
 
     class TileGridUI {
-        constructor(numOfRows, numOfCols) {
-            this.numOfRows = numOfRows;
-            this.numOfCols = numOfCols;
-            this.matrix    = build2dArray(numOfRows, numOfCols);
-            this.node      = Minecraft.html.$gameContainer;
+        constructor(numOfRows) {
+            this.numOfRows = numOfRows ? numOfRows : 14;
+            this.tileSize  = Minecraft.html.$gameContainer.height() / this.numOfRows;
+            this.numOfCols = Math.floor(Minecraft.html.$gameContainer.height() / this.tileSize);
+            this.matrix    = build2dArray(this.numOfRows, this.numOfCols);
+            this.$node     = this.initGameGrid();
         }
 
-        injectMatrixWithTiles(rowNumber) {
-            let row = (rowNumber || rowNumber === 0) ? rowNumber : this.numOfRows;
+        initGameGrid() {
+            const $node = $( '<div />' );
+            $node.attr('id', 'game-grid');
+            Minecraft.html.$gameContainer.css('background', 'none');
+            Minecraft.html.$gameContainer.html($node);
+            return $node
+        }
 
-            if (--row >= 0) {
+        injectMatrixWithTiles() {
+            let row = this.numOfRows;
+            while (--row >= 0) {
+
                 let col = this.numOfCols;
 
                 while (--col >= 0) {
-                    // randomizeTileFunction
-                    this.matrix[row][col] = Minecraft.tiles.dirt;
-                    this.injectMatrixWithTiles(row);
+                    const pickedTile = Minecraft.tiles.dirt; // randomPickTile()
+
+                    this.appendTileNode(Minecraft.tiles.dirt, row, col);
+                    this.matrix[row][col] = pickedTile;
                 }
             }
+
         }
 
-        appendTileNode(tileInstance) {
-            const $tileNode = $( '<div />' ).attr('data-col', tileInstance.col);
+        appendTileNode(tileInstance, row, col) {
+            const $tileNode = $( '<div />' )
 
-            $tileNode.append($( '<img />' ).attr('src', tileInstance.imgPath));
-            tileInstance.node = $tileNode;
+            $tileNode.attr({
+                'data-row': row,
+                'data-col': col,
+            });
+            $tileNode.css({
+                backgroundImage: `url(${tileInstance.imgPath})`,
+                height: this.tileSize,
+                width: this.tileSize,
+            });
+
+            this.$node.prepend($tileNode); // Prepend because the matrix is built from bottom right to top left
         }
 
         tileExistsBelow(tileRow, tileCol) {
@@ -140,15 +160,19 @@
         generateGridHTML() {
             
         }
+
     }
 
-    let a = new TileGridUI(3, 5);
-    a.injectMatrixWithTiles();
-    console.log(a);
+   // let a = new TileGridUI();
+   // a.injectMatrixWithTiles();
+   //  console.log(a);
+
+
+
     // --------------------------------------------------------------------------------------
     // General functions that may be reused outside this project
     function build2dArray(numOfRows, numOfCols) {
-        const matrix = new Array(numOfRows);
+        const matrix  = new Array(numOfRows);
 
         let i = -1;
         while (++i < numOfRows) {
