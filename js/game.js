@@ -8,9 +8,10 @@
         constructor(name, type) {
             this.name          = name;
             this.type          = type;
-            this.types         = type + "s";
+            this.types         = type + 's';
             this.imgFolderName = this.types;
             this.imgPath       = 'img/' + this.imgFolderName + '/' + name + '.png';
+            this.cursorImgPath = 'img/cursors/' + name + '.png';
         }
     }
 
@@ -29,7 +30,9 @@
 
     const Minecraft = {
         html: {
-            $ameContainer: $('#game-container'),
+            $gameContainer:  $('#game-container'),
+            $gameGrid:      undefined,
+            $tiles:         undefined,
             $toolkit:       $('#toolkit'),
             $tools:         undefined,
         },
@@ -77,16 +80,16 @@
 
     // Event handlers
     Minecraft.setActiveElementEventHandler = function() {
-        Minecraft.activeElement = Minecraft[$(this).attr("data-type")][this.id];
+        Minecraft.activeElement = Minecraft[$(this).attr('data-type')][this.id];
+        $('#game-container').css('cursor', 'url(' + Minecraft.activeElement.cursorImgPath + '), auto');
     };
-
 
     class TileGridUI {
         constructor(numOfRows, numOfCols) {
             this.numOfRows = numOfRows;
             this.numOfCols = numOfCols;
             this.matrix    = build2dArray(numOfRows, numOfCols);
-            this.node      = Minecraft.html.gameContainer;
+            this.node      = Minecraft.html.$gameContainer;
         }
 
         injectMatrixWithTiles(rowNumber) {
@@ -122,6 +125,10 @@
             
         }
     }
+
+    let a = new TileGridUI(3, 5);
+    a.injectMatrixWithTiles();
+    console.log(a);
     // --------------------------------------------------------------------------------------
     // General functions that may be reused outside this project
     function build2dArray(numOfRows, numOfCols) {
@@ -139,3 +146,15 @@
     Minecraft.init();
 // ------------------------------------------------------------------------------------------
 // } // MAKE SURE TO UNCOMMENT ON DEPLOY ####################################################
+
+
+
+    // // TEMPORARY, REMOVE
+    // let gameGrid = build2dArray(4,4);
+    // for (let j = 0 ; j < 4 ; j++) {
+    //     gameGrid[0][j] = ;
+    //     gameGrid[1][j] = ;
+    //     gameGrid[2][j] = ;
+    //     gameGrid[3][j] = ;
+    // }
+    // // REMOVE UNTIL HERE
