@@ -16,9 +16,9 @@
 			this.name      = this.tileType;
 			this.imgPath   = "img/tiles/" + name + ".png";
 			this.tileLevel = (tileLevel >= 0) ? tileLevel : 1;
+			this.node;
 			this.row;
 			this.col;
-			this.node;
 		}
 	}
 
@@ -55,14 +55,14 @@
 	// Generate HTML elements
 	Minecraft.generateHTML = function () {
 		for (const tool in this.tools) {
-			const toolContainer = $("<div />").attr("class", "tool-container");
-			toolContainer.append($("<img />").attr("src", this.tools[tool].imgPath));
-			toolContainer.append($("<p />").html(this.tools[tool].name));
+			const toolContainer = $( "<div />" ).attr("class", "tool-container");
+			toolContainer.append( $( "<img />" ).attr("src", this.tools[tool].imgPath));
+			toolContainer.append( $( "<p />" ).html(this.tools[tool].name));
 			this.html.toolkit.append(toolContainer);
 		}
 	};
 
-	class TileGrid {
+	class TileGridUI {
 		constructor(numOfRows, numOfCols) {
 			this.numOfRows = numOfRows;
 			this.numOfCols = numOfCols;
@@ -84,11 +84,16 @@
 			}
 		}
 
+		appendTileNode(tileInstance) {
+			const $tileNode = $( '<div />' ).attr('data-col', tileInstance.col);
 
+			$tileNode.append($( '<img />' ).attr('src', tileInstance.imgPath));
+			tileInstance.node = $tileNode;
+		}
 
 		tileExistsBelow(tileRow, tileCol) {
 			if (tileRow !== this.numOfRows)
-				return this.matrix[++tileRow][tileCol] !== undefined;
+				return typeof this.matrix[++tileRow][tileCol] !== 'undefined';
 		}
 
 		randomPickTile() {
