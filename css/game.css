@@ -76,12 +76,11 @@
     font-size: 10px;
     height: 50px;
     width: 50px;
+    background-size: cover;
 }
 
 #game-grid > div:hover {
-    border: 1px solid white;
-    opacity: 50%;
-    background-color: white !important;
+    box-shadow: 0 0 0 1.5px white inset;
 }
 
 #toolkit .toolkit-element:hover {
