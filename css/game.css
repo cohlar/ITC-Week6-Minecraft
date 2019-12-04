@@ -9,10 +9,11 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100%;
     /* width: ( 100vw - 150px ); */
     flex-grow: 1;
     background: url("../img/tiles/dirt.png");
+    overflow-x: scroll;
 }
 
 #toolkit {
@@ -20,6 +21,7 @@
     flex-direction: column;
     justify-content: space-between;
     width: 150px;
+    min-width: 150px;
     padding: 15px;
     background: black;
 }
@@ -58,16 +60,28 @@
 }
 
 #game-grid {
+    flex-grow: 0;
+    flex-shrink: 0;
     display: flex;
     flex-wrap: wrap;
     background-color: var(--sky-blue);
-    /*height: 100vh;   */
-    /*width: auto;*/
+    /*height: 100%;   */
+    min-width: 100%;
+    height: min-content;
 }
 
 #game-grid > div {
-    background-color: blue;
+    flex-grow: 0;
+    flex-shrink: 0;
     font-size: 10px;
+    height: 50px;
+    width: 50px;
+}
+
+#game-grid > div:hover {
+    border: 1px solid white;
+    opacity: 50%;
+    background-color: white !important;
 }
 
 #toolkit .toolkit-element:hover {

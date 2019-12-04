@@ -95,7 +95,7 @@
 
     // Event handlers
     Minecraft.startGame = function () {
-        this.uiGrid = new TileGridUI(14);
+        this.uiGrid = new TileGridUI(500);
         this.uiGrid.injectMatrixWithTiles();
         this.html.$gameGridElements = $('.tile');
         this.html.$gameGridElements.on('click', this.actionTile);  // J'ai pas trouve mieux comme nom de fonction
@@ -120,12 +120,31 @@
         $( this ).toggleClass('active');
     };
 
+    // class TileGridUI {
+    //     constructor(numOfCols, matrix) {
+    //         this.matrix = matrix;
+    //         this.numOfCols = numOfCols;
+    //         this.numOfRows = Math.floor(Minecraft.html.$gameContainer.height() / 45);
+    //         this.width = numOfCols * 45 + 'px';
+    //         this.$node = this.initGameGrid();
+    //     }
+
+    //     initGameGrid() {
+    //         const $node = $( '<div />' );
+    //         $node.attr('id', 'game-grid');
+
+    //     }
+
+    //     injectMatrixNbuildGrid() {
+    //     }
+    // }
+
     // UI
     class TileGridUI {
-        constructor(numOfRows) {
-            this.numOfRows = numOfRows ? numOfRows : 14;
-            this.tileSize  = Minecraft.html.$gameContainer.height() / this.numOfRows;
-            this.numOfCols = Math.floor(Minecraft.html.$gameContainer.height() / this.tileSize);
+        constructor(numOfCols) {
+            this.numOfRows = Math.floor(Minecraft.html.$gameContainer.height() / 50)
+            this.numOfCols = numOfCols;
+            this.width     = 50 * this.numOfCols;
             this.matrix    = build2dArray(this.numOfRows, this.numOfCols);
             this.$node     = this.initGameGrid();
         }
@@ -133,22 +152,27 @@
         initGameGrid() {
             const $node = $( '<div />' );
             $node.attr('id', 'game-grid');
-            Minecraft.html.$gameContainer.css('background', 'none');
+            Minecraft.html.$gameContainer.css({background: 'none',});
+            $node.css('width', this.width + 'px');
+
             Minecraft.html.$gameContainer.html($node);
-            return $node
+            Minecraft.html.$gameGrid = $( '#game-grid' ); 
+
+            return Minecraft.html.$gameGrid;
         }
 
         injectMatrixWithTiles() {
             let row = this.numOfRows;
+            console.log(this.numOfRows)
             while (--row >= 0) {
 
                 let col = this.numOfCols;
 
                 while (--col >= 0) {
-                    const pickedTile = Minecraft.tiles.dirt; // randomPickTile()
+                    const pickedTile = this.randomPickTile(row); // randomPickTile()
 
-                    this.appendTileNode(Minecraft.tiles.dirt, row, col);
                     this.matrix[row][col] = pickedTile;
+                    this.appendTileNode(pickedTile, row, col);
                 }
             }
         }
@@ -157,14 +181,14 @@
             const $tileNode = $( '<div />' )
 
             $tileNode.attr({
-                'class':    'tile',
+                   'class':'tile',
                 'data-row': row,
                 'data-col': col,
             });
             $tileNode.css({
                 backgroundImage: `url(${tileInstance.imgPath})`,
-                height: this.tileSize,
-                width: this.tileSize,
+                // height: this.tileSize,
+                // width: this.tileSize,
             });
 
             this.$node.prepend($tileNode); // Prepend because the matrix is built from bottom right to top left
@@ -175,7 +199,8 @@
                 return typeof this.matrix[++tileRow][tileCol] !== 'undefined';
         }
 
-        randomPickTile() {
+        randomPickTile(n) {
+            return n < 7 ? new Tile('_blank') : Minecraft.tiles.dirt;
         }
 
         generateGridHTML() {
@@ -184,7 +209,7 @@
 
     }
 
-   // let a = new TileGridUI();
+   // let a = new TileGridUI(14, 100);
    // a.injectMatrixWithTiles();
    //  console.log(a);
 
