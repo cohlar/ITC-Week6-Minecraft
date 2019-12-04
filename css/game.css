@@ -65,7 +65,6 @@
     display: flex;
     flex-wrap: wrap;
     background-color: var(--sky-blue);
-    /*height: 100%;   */
     min-width: 100%;
     height: min-content;
 }
