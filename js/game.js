@@ -1,7 +1,6 @@
 'use strict';
 
-const TILE_SIZE = 50;
-// const 
+// const
 
 // MAKE SURE TO UNCOMMENT ON DEPLOY ####################################################
 // window.onload = function () {
@@ -46,7 +45,7 @@ const TILE_SIZE = 50;
             axe:        new Tool('axe', 'tree'),
             pickaxe:    new Tool('pickaxe', 'rock'),
             shovel:     new Tool('shovel', 'dirt'),
-            tbd:        new Tool('eraser', 'tbd'),
+            // tbd:        new Tool('eraser', 'tbd'),
         },
         tiles: {
             diamond: new Tile('diamond'),
@@ -62,7 +61,8 @@ const TILE_SIZE = 50;
             tree:    new Tile('tree'),
         },
         numOfRows:      undefined,
-        numOfCols:      100,
+        numOfCols:      500,
+        tileSize:       50,
         tileGrid:       undefined,
         tileGridUI:     undefined,
         activeElement:  undefined,
@@ -102,7 +102,7 @@ const TILE_SIZE = 50;
     // Event handlers
     Minecraft.startGame = function () {
 
-        this.numOfRows = Math.floor(this.html.$gameContainer.height() / TILE_SIZE)
+        this.numOfRows = Math.floor(this.html.$gameContainer.height() / this.tileSize)
         const gridMatrix = build2dArray(this.numOfRows, this.numOfCols);
         const callbacksMatrix = build2dArray(this.numOfRows, this.numOfCols);
 
@@ -174,6 +174,10 @@ const TILE_SIZE = 50;
             }
         }
 
+        injectTree(row, col) {
+            this.matrix[row][col];
+        }
+
         getTile(row, col) {
             return this.matrix[row][col];
         }
@@ -193,7 +197,7 @@ const TILE_SIZE = 50;
             this.grid        = tileGridInstance;
             this.numOfRows   = tileGridInstance.matrix.length;
             this.numOfCols   = tileGridInstance.matrix[0].length;
-            this.width       = TILE_SIZE * this.numOfCols;
+            this.width       = Minecraft.tileSize * this.numOfCols;
             this.$parentNode = Minecraft.html.$gameContainer;
             this.$node       = this.createGridNode();
         }
