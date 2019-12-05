@@ -1,5 +1,8 @@
 'use strict';
 
+const TILE_SIZE = 50;
+// const 
+
 // MAKE SURE TO UNCOMMENT ON DEPLOY ####################################################
 // window.onload = function () {
 
@@ -58,7 +61,10 @@
             tnt:     new Tile('tnt'),
             tree:    new Tile('tree'),
         },
-        uiGrid:         undefined,
+        numOfRows:      undefined,
+        numOfCols:      100,
+        tileGrid:       undefined,
+        tileGridUI:     undefined,
         activeElement:  undefined,
     }
 
@@ -95,8 +101,17 @@
 
     // Event handlers
     Minecraft.startGame = function () {
-        this.uiGrid = new TileGridUI(500);
-        this.uiGrid.injectMatrixWithTiles();
+
+        this.numOfRows = Math.floor(this.html.$gameContainer.height() / TILE_SIZE)
+        const gridMatrix = build2dArray(this.numOfRows, this.numOfCols);
+        const callbacksMatrix = build2dArray(this.numOfRows, this.numOfCols);
+
+        this.tileGrid   = new TileGrid(gridMatrix, callbacksMatrix);
+        this.tileGridUI = new TileGridUI(this.tileGrid);
+        this.tileGridUI.render();
+
+        // this.tileGridUI = new TileGridUI(100);
+        // this.tileGridUI.injectMatrixWithTiles();
         this.html.$gameGridElements = $('.tile');
         this.html.$gameGridElements.on('click', this.actionTile);  // J'ai pas trouve mieux comme nom de fonction
         this.html.$toolkitElements.on('click', this.setActiveElementEventHandler);
@@ -105,10 +120,10 @@
     Minecraft.actionTile = function () {
         const [row, col] = [ $( this ).attr('data-row') , $( this ).attr('data-col') ];
         if ( Minecraft.activeElement instanceof Tool &&         // Ce if doit pouvoir etre simplifie... mais deja il marche :)
-                Minecraft.uiGrid.matrix[row][col] !== null &&
-                Minecraft.activeElement.tileType === Minecraft.uiGrid.matrix[row][col].name
-            ) {
-            Minecraft.uiGrid.matrix[row][col] = null;
+             Minecraft.tileGridUI.matrix[row][col] !== null &&
+             Minecraft.activeElement.tileType === Minecraft.tileGridUI.matrix[row][col].name) {
+
+            Minecraft.tileGridUI.matrix[row][col] = null;
             $( this ).css('background', 'none');
         }
     };
@@ -116,104 +131,108 @@
     Minecraft.setActiveElementEventHandler = function() {
         Minecraft.activeElement = Minecraft[$(this).attr('data-type')][this.id];
         Minecraft.html.$gameContainer.css('cursor', 'url(' + Minecraft.activeElement.cursorImgPath + '), auto');
-        $('.toolkit-element.active').toggleClass('active');
+        $( '.toolkit-element.active' ).toggleClass('active');
         $( this ).toggleClass('active');
     };
 
-    // class TileGridUI {
-    //     constructor(numOfCols, matrix) {
-    //         this.matrix = matrix;
-    //         this.numOfCols = numOfCols;
-    //         this.numOfRows = Math.floor(Minecraft.html.$gameContainer.height() / 45);
-    //         this.width = numOfCols * 45 + 'px';
-    //         this.$node = this.initGameGrid();
-    //     }
 
-    //     initGameGrid() {
-    //         const $node = $( '<div />' );
-    //         $node.attr('id', 'game-grid');
-
-    //     }
-
-    //     injectMatrixNbuildGrid() {
-    //     }
-    // }
-
-    // UI
-    class TileGridUI {
-        constructor(numOfCols) {
-            this.numOfRows = Math.floor(Minecraft.html.$gameContainer.height() / 50)
-            this.numOfCols = numOfCols;
-            this.width     = 50 * this.numOfCols;
-            this.matrix    = build2dArray(this.numOfRows, this.numOfCols);
-            this.$node     = this.initGameGrid();
-        }
-
-        initGameGrid() {
-            const $node = $( '<div />' );
-            $node.attr('id', 'game-grid');
-            Minecraft.html.$gameContainer.css({background: 'none',});
-            $node.css('width', this.width + 'px');
-
-            Minecraft.html.$gameContainer.html($node);
-            Minecraft.html.$gameGrid = $( '#game-grid' ); 
-
-            return Minecraft.html.$gameGrid;
+    class TileGrid {
+        constructor(matrix, callbacksMat) {
+            this.matrix     = matrix;
+            this.numOfRows  = matrix.length
+            this.numOfCols  = matrix[0].length
+            this.callbacks  = callbacksMat;
+            this.tiles      = Minecraft.tiles;
+            this.maxFillRow = Math.ceil(this.numOfRows / 2);
+            this.injectMatrixWithTiles(); // Maybe remove
         }
 
         injectMatrixWithTiles() {
-            let row = this.numOfRows;
-            console.log(this.numOfRows)
-            while (--row >= 0) {
+            let row = -1;
+            while (++row < this.numOfRows) {
 
-                let col = this.numOfCols;
-
-                while (--col >= 0) {
-                    const pickedTile = this.randomPickTile(row); // randomPickTile()
-
-                    this.matrix[row][col] = pickedTile;
-                    this.appendTileNode(pickedTile, row, col);
+                let col = -1;
+                while (++col < this.numOfCols) {
+                    this.matrix[row][col] = this.randomTile(row);
                 }
             }
         }
 
-        appendTileNode(tileInstance, row, col) {
-            const $tileNode = $( '<div />' )
+        randomTile(row) {
+            switch ( true ) {
+                case row === 0:
+                    return this.tiles.lava;
 
-            $tileNode.attr({
-                   'class':'tile',
-                'data-row': row,
-                'data-col': col,
-            });
-            $tileNode.css({
-                backgroundImage: `url(${tileInstance.imgPath})`,
-                // height: this.tileSize,
-                // width: this.tileSize,
-            });
+                case row < 2:
+                    return this.tiles.dirt;
 
-            this.$node.prepend($tileNode); // Prepend because the matrix is built from bottom right to top left
+                // case 2 <= row < this.maxFillRow:
+                //     return this.tiles.leaf;
+
+                default:
+                    return null;
+            }
         }
 
-        tileExistsBelow(tileRow, tileCol) {
-            if (tileRow !== this.numOfRows)
-                return typeof this.matrix[++tileRow][tileCol] !== 'undefined';
+        getTile(row, col) {
+            return this.matrix[row][col];
         }
 
-        randomPickTile(n) {
-            return n < 7 ? new Tile('_blank') : Minecraft.tiles.dirt;
+        setTile(row, col, newTile) { //will update gridui upon change
+            this.matrix[row][col] = newTile;
+            this.callbacks[row][col] && this.callbacks[row][col](newTile);
         }
 
-        generateGridHTML() {
-            
+        onChange(row, col, func) {
+            this.callbacks[row][col] = func;
         }
-
     }
 
-   // let a = new TileGridUI(14, 100);
-   // a.injectMatrixWithTiles();
-   //  console.log(a);
+    class TileGridUI {
+        constructor(tileGridInstance) {
+            this.grid        = tileGridInstance;
+            this.numOfRows   = tileGridInstance.matrix.length;
+            this.numOfCols   = tileGridInstance.matrix[0].length;
+            this.width       = TILE_SIZE * this.numOfCols;
+            this.$parentNode = Minecraft.html.$gameContainer;
+            this.$node       = this.createGridNode();
+        }
 
+        createGridNode() {
+            const $node = $( '<div />' );
+                  $node.attr('id', 'game-grid')
+                       .css('width', this.width + 'px');
 
+            return ( $node );
+        }
+
+        createTileNode(url) {
+            const $tileNode = $( '<div />' );
+                  $tileNode.css('background-image', `url(${ url })`)
+
+            return ( $tileNode );
+        }
+
+        render() {
+            this.$parentNode.css('background', 'none')
+                            .html(this.$node);
+
+            let row = -1;
+            while (++row < this.numOfRows) {
+
+                let col = -1;
+                while (++col < this.numOfCols) {
+                    const $tile = this.grid.matrix[row][col] ? this.createTileNode(this.grid.matrix[row][col].imgPath) : this.createTileNode('#');
+
+                    this.$node.prepend($tile);
+
+                    this.grid.onChange(row, col, (newTile) => { 
+                        $tile.css('background-image', `url( ${newTile.imgPath} )`);
+                    });
+                }
+            }
+        }
+    }
 
     // --------------------------------------------------------------------------------------
     // General functions that may be reused outside this project
