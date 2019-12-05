@@ -1,7 +1,6 @@
 'use strict';
 
 const TILE_SIZE = 50;
-// const 
 
 // MAKE SURE TO UNCOMMENT ON DEPLOY ####################################################
 // window.onload = function () {
