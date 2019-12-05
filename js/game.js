@@ -41,9 +41,9 @@
         },
         tools: {
             axe:        new Tool('axe', 'tree'),
+            bucket:     new Tool('bucket', 'lava'),
             pickaxe:    new Tool('pickaxe', 'rock'),
             shovel:     new Tool('shovel', 'dirt'),
-            // tbd:        new Tool('eraser', 'tbd'),
         },
         tiles: {
             diamond: new Tile('diamond'),
