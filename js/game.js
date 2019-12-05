@@ -234,19 +234,19 @@
             }
         }
 
-        withProbaOf(n) {
-            return !!n && Math.random() <= n;
-        }
+    withProbaOf(n) {
+        return !!n && Math.random() <= n;
+    }
 
-        randomTile(row, col) {
-            switch ( true ) {
-                case row === 0:
+    randomTile(row, col) {
+        switch ( true ) {
+            case row === 0:
                 return this.tiles.lava;
 
-                case row < this.baseRow:
+            case row < this.baseRow:
                 return this.tiles.dirt;
 
-                case ( this.baseRow <= row && row <= (this.maxFillRow - this.rowOffset) ):
+            case ( this.baseRow <= row && row <= (this.maxFillRow - this.rowOffset) ):
                 if (this.hasTileBeneath(row, col) &&
                     this.matrix[row - 1][col].name === 'dirt')
 
@@ -266,90 +266,90 @@
                     }
                     break;
 
-                    default:
-                    return null;
-                }
-            }
+            default:
+                return null;
+        }
+    }
+}
+
+
+    class TileGridUI {
+        constructor(tileGridInstance, gameSessionInstance) {
+            this.grid = tileGridInstance;
+            this.session = gameSessionInstance;
+            this.numOfRows = tileGridInstance.matrix.length;
+            this.numOfCols = tileGridInstance.matrix[0].length;
+            this.width = Minecraft.tileSize * this.numOfCols;
+            this.$parentNode = Minecraft.html.$gameContainer;
+            this.$node = this.createGridNode();
         }
 
+        createGridNode() {
+            const $node = $('<div />');
+            $node.attr('id', 'game-grid')
+                 .css('width', this.width + 'px');
 
-        class TileGridUI {
-            constructor(tileGridInstance, gameSessionInstance) {
-                this.grid = tileGridInstance;
-                this.session = gameSessionInstance;
-                this.numOfRows = tileGridInstance.matrix.length;
-                this.numOfCols = tileGridInstance.matrix[0].length;
-                this.width = Minecraft.tileSize * this.numOfCols;
-                this.$parentNode = Minecraft.html.$gameContainer;
-                this.$node = this.createGridNode();
-            }
+            return ($node);
+        }
 
-            createGridNode() {
-                const $node = $('<div />');
-                $node.attr('id', 'game-grid')
-                .css('width', this.width + 'px');
+        createTileNode(url) {
+            const $tileNode = $('<div />');
+            $tileNode.css('background-image', `url(${url})`);
 
-                return ($node);
-            }
+            return ($tileNode);
+        }
 
-            createTileNode(url) {
-                const $tileNode = $('<div />');
-                $tileNode.css('background-image', `url(${url})`);
+        render() {
+            this.$parentNode.css('background', 'none')
+            .html(this.$node);
 
-                return ($tileNode);
-            }
+            for (let row = 0; row < this.numOfRows; row++) {
+                for (let col = 0; col < this.numOfCols; col++) {
+                    const $tile = this.grid.matrix[row][col] ? this.createTileNode(this.grid.matrix[row][col].imgPath) : this.createTileNode('#');
 
-            render() {
-                this.$parentNode.css('background', 'none')
-                .html(this.$node);
+                    this.$node.prepend($tile);
 
-                for (let row = 0; row < this.numOfRows; row++) {
-                    for (let col = 0; col < this.numOfCols; col++) {
-                        const $tile = this.grid.matrix[row][col] ? this.createTileNode(this.grid.matrix[row][col].imgPath) : this.createTileNode('#');
-
-                        this.$node.prepend($tile);
-
-                        this.grid.onChange(row, col, (newTile) => {
-                            if (!newTile) {
-                                $tile.css('background-image', '');
-                            }
-                            else $tile.css('background-image', `url( ${newTile.imgPath} )`);
-                        });
-
-                        $tile.on('click', function () {
-                            if (Minecraft.activeElement instanceof Tool && !!this.grid.matrix[row][col] &&
-                                Minecraft.activeElement.tileType === this.grid.matrix[row][col].name) {
-
-                                this.grid.setTile(row, col, '');
-                            Minecraft.html.countTiles['$' + Minecraft.activeElement.tileType].html(++this.session.count[Minecraft.activeElement.tileType]);
-                            Minecraft.html.tiles['$' + Minecraft.activeElement.tileType].removeClass('empty');
-                            return;
+                    this.grid.onChange(row, col, (newTile) => {
+                        if (!newTile) {
+                            $tile.css('background-image', '');
                         }
+                        else $tile.css('background-image', `url( ${newTile.imgPath} )`);
+                    });
 
-                        if (Minecraft.activeElement instanceof Tile && !this.grid.matrix[row][col] &&
-                            this.session.count[Minecraft.activeElement.name] >0) {
+                    $tile.on('click', function () {
+                        if (Minecraft.activeElement instanceof Tool && !!this.grid.matrix[row][col] &&
+                            Minecraft.activeElement.tileType === this.grid.matrix[row][col].name) {
 
-                            this.grid.setTile(row, col, Minecraft.activeElement);
-                        Minecraft.html.countTiles['$' + Minecraft.activeElement.name].html(--this.session.count[Minecraft.activeElement.name]);
-                        if (this.session.count[Minecraft.activeElement.name] === 0) Minecraft.html.tiles['$' + Minecraft.activeElement.name].addClass('empty');
+                            this.grid.setTile(row, col, '');
+                        Minecraft.html.countTiles['$' + Minecraft.activeElement.tileType].html(++this.session.count[Minecraft.activeElement.tileType]);
+                        Minecraft.html.tiles['$' + Minecraft.activeElement.tileType].removeClass('empty');
                         return;
                     }
-                }.bind(this));
-                    }
-                }
-            }
-        }
 
-        class GameSession {
-            constructor() {
-                this.tools = Minecraft.tools;
-                this.tiles = Minecraft.tiles;
-                this.count = {};
-                for (let tileKey in this.tiles) {
-                    this.count[tileKey] = 0;
+                    if (Minecraft.activeElement instanceof Tile && !this.grid.matrix[row][col] &&
+                        this.session.count[Minecraft.activeElement.name] >0) {
+
+                        this.grid.setTile(row, col, Minecraft.activeElement);
+                    Minecraft.html.countTiles['$' + Minecraft.activeElement.name].html(--this.session.count[Minecraft.activeElement.name]);
+                    if (this.session.count[Minecraft.activeElement.name] === 0) Minecraft.html.tiles['$' + Minecraft.activeElement.name].addClass('empty');
+                    return;
+                }
+            }.bind(this));
                 }
             }
         }
+    }
+
+    class GameSession {
+        constructor() {
+            this.tools = Minecraft.tools;
+            this.tiles = Minecraft.tiles;
+            this.count = {};
+            for (let tileKey in this.tiles) {
+                this.count[tileKey] = 0;
+            }
+        }
+    }
 
     // --------------------------------------------------------------------------------------
     // General functions that may be reused outside this project
@@ -366,5 +366,5 @@
     // --------------------------------------------------------------------------------------
     // And this is where all the magic happens
     Minecraft.init();
-// ------------------------------------------------------------------------------------------
-// } // MAKE SURE TO UNCOMMENT ON DEPLOY ####################################################
+    // ------------------------------------------------------------------------------------------
+    // } // MAKE SURE TO UNCOMMENT ON DEPLOY ####################################################
