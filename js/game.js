@@ -79,7 +79,10 @@ Minecraft.generateHTML = function () {
             'class': 'toolkit-element',
             'data-type': this.tools[tool].types,
         });
-        $toolContainer.append($('<img />').attr('src', this.tools[tool].imgPath));
+        $toolContainer.append($('<div />').css({
+            'background': 'url(' + this.tools[tool].imgPath + ')',
+            'background-size': 'contain',
+        }));
         $toolContainer.append($('<p />').html(this.tools[tool].name));
         this.html.$toolkitToolsContainer.append($toolContainer);
     }
@@ -89,7 +92,10 @@ Minecraft.generateHTML = function () {
             'class': 'toolkit-element empty',
             'data-type': this.tiles[tile].types,
         });
-        $tileContainer.append($('<img />').attr('src', this.tiles[tile].imgPath));
+        $tileContainer.append($('<div />').css({
+            'background': 'url(' + this.tiles[tile].imgPath + ')',
+            'background-size': 'contain',
+        }).attr('id', 'count-' + tile).html('0'));
         $tileContainer.append($('<p />').html(this.tiles[tile].name));
         this.html.$toolkitTilesContainer.append($tileContainer);
     }
@@ -112,6 +118,18 @@ Minecraft.generateHTML = function () {
         $stone: $('#stone'),
         $tnt: $('#tnt'),
         $tree: $('#tree'),
+    };
+    Minecraft.html.countTiles = {
+        $diamond: $('#count-diamond'),
+        $dirt: $('#count-dirt'),
+        $gate: $('#count-gate'),
+        $grass: $('#count-grass'),
+        $lava: $('#count-lava'),
+        $leaf: $('#count-leaf'),
+        $rock: $('#count-rock'),
+        $stone: $('#count-stone'),
+        $tnt: $('#count-tnt'),
+        $tree: $('#count-tree'),
     };
 };
 
@@ -241,17 +259,14 @@ class TileGridUI {
 
         for (let row = 0; row < this.numOfRows; row++) {
             for (let col = 0; col < this.numOfCols; col++) {
-                // let row = -1;
-                // while (++row < this.numOfRows) {
-
-                // let col = -1;
-                // while (++col < this.numOfCols) {
                 const $tile = this.grid.matrix[row][col] ? this.createTileNode(this.grid.matrix[row][col].imgPath) : this.createTileNode('#');
 
                 this.$node.prepend($tile);
 
                 this.grid.onChange(row, col, (newTile) => {
-                    if (!newTile) $tile.css('background-image', '');
+                    if (!newTile) {
+                        $tile.css('background-image', '');
+                    }
                     else $tile.css('background-image', `url( ${newTile.imgPath} )`);
                 });
 
@@ -260,10 +275,7 @@ class TileGridUI {
                         Minecraft.activeElement.tileType === this.grid.matrix[row][col].name) {
 
                             this.grid.setTile(row, col, "");
-                            this.session.count[Minecraft.activeElement.tileType]++;
-                            console.log(Minecraft.html.tiles);
-                            console.log("$" + Minecraft.activeElement.tileType);
-                            console.log(Minecraft.html.tiles["$" + Minecraft.activeElement.tileType]);
+                            Minecraft.html.countTiles["$" + Minecraft.activeElement.tileType].html(++this.session.count[Minecraft.activeElement.tileType]);
                             Minecraft.html.tiles["$" + Minecraft.activeElement.tileType].removeClass('empty');
                             return;
                     }
@@ -272,7 +284,7 @@ class TileGridUI {
                         this.session.count[Minecraft.activeElement.name] >0) {
 
                             this.grid.setTile(row, col, Minecraft.activeElement);
-                            this.session.count[Minecraft.activeElement.name]--;
+                            Minecraft.html.countTiles["$" + Minecraft.activeElement.name].html(--this.session.count[Minecraft.activeElement.name]);
                             if (this.session.count[Minecraft.activeElement.name] === 0) Minecraft.html.tiles["$" + Minecraft.activeElement.name].addClass('empty');
                             return;
                     }

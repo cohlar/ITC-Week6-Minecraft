@@ -49,8 +49,15 @@
     cursor: grab;
 }
 
-#toolkit .toolkit-element img {
+#toolkit .toolkit-element div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 54px;
     width: 54px;
+    font-size: 20px;
+    color: white;
+    -webkit-text-stroke: 1px black;
 }
 
 #toolkit .toolkit-element p {
