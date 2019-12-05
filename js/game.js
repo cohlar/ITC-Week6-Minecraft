@@ -145,22 +145,8 @@ Minecraft.startGame = function () {
     this.tileGridUI = new TileGridUI(this.tileGrid, this.session);
     this.tileGridUI.render();
 
-    // this.tileGridUI = new TileGridUI(100);
-    // this.tileGridUI.injectMatrixWithTiles();
     this.html.$gameGridElements = $('.tile');
-    this.html.$gameGridElements.on('click', this.actionTile);  // J'ai pas trouve mieux comme nom de fonction
     this.html.$toolkitElements.on('click', this.setActiveElementEventHandler);
-};
-
-Minecraft.actionTile = function () {
-    const [row, col] = [$(this).attr('data-row'), $(this).attr('data-col')];
-    if (Minecraft.activeElement instanceof Tool &&         // Ce if doit pouvoir etre simplifie... mais deja il marche :)
-        Minecraft.tileGridUI.matrix[row][col] !== null &&
-        Minecraft.activeElement.tileType === Minecraft.tileGridUI.matrix[row][col].name) {
-
-        Minecraft.tileGridUI.matrix[row][col] = null;
-        $(this).css('background', 'none');
-    }
 };
 
 Minecraft.setActiveElementEventHandler = function () {
@@ -274,9 +260,9 @@ class TileGridUI {
                     if (Minecraft.activeElement instanceof Tool && !!this.grid.matrix[row][col] &&
                         Minecraft.activeElement.tileType === this.grid.matrix[row][col].name) {
 
-                            this.grid.setTile(row, col, "");
-                            Minecraft.html.countTiles["$" + Minecraft.activeElement.tileType].html(++this.session.count[Minecraft.activeElement.tileType]);
-                            Minecraft.html.tiles["$" + Minecraft.activeElement.tileType].removeClass('empty');
+                            this.grid.setTile(row, col, '');
+                            Minecraft.html.countTiles['$' + Minecraft.activeElement.tileType].html(++this.session.count[Minecraft.activeElement.tileType]);
+                            Minecraft.html.tiles['$' + Minecraft.activeElement.tileType].removeClass('empty');
                             return;
                     }
 
@@ -284,8 +270,8 @@ class TileGridUI {
                         this.session.count[Minecraft.activeElement.name] >0) {
 
                             this.grid.setTile(row, col, Minecraft.activeElement);
-                            Minecraft.html.countTiles["$" + Minecraft.activeElement.name].html(--this.session.count[Minecraft.activeElement.name]);
-                            if (this.session.count[Minecraft.activeElement.name] === 0) Minecraft.html.tiles["$" + Minecraft.activeElement.name].addClass('empty');
+                            Minecraft.html.countTiles['$' + Minecraft.activeElement.name].html(--this.session.count[Minecraft.activeElement.name]);
+                            if (this.session.count[Minecraft.activeElement.name] === 0) Minecraft.html.tiles['$' + Minecraft.activeElement.name].addClass('empty');
                             return;
                     }
                 }.bind(this));
@@ -323,15 +309,3 @@ function build2dArray(numOfRows, numOfCols) {
 Minecraft.init();
 // ------------------------------------------------------------------------------------------
 // } // MAKE SURE TO UNCOMMENT ON DEPLOY ####################################################
-
-
-
-    // // TEMPORARY, REMOVE
-    // let gameGrid = build2dArray(4,4);
-    // for (let j = 0 ; j < 4 ; j++) {
-    //     gameGrid[0][j] = ;
-    //     gameGrid[1][j] = ;
-    //     gameGrid[2][j] = ;
-    //     gameGrid[3][j] = ;
-    // }
-    // // REMOVE UNTIL HERE
