@@ -59,6 +59,10 @@
     font-size: 10px;
 }
 
+#toolkit .toolkit-element.empty {
+    opacity: 0.5;
+}
+
 #game-grid {
     flex-grow: 0;
     flex-shrink: 0;
