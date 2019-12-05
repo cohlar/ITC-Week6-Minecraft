@@ -143,46 +143,18 @@
             this.numOfCols  = matrix[0].length
             this.callbacks  = callbacksMat;
             this.tiles      = Minecraft.tiles;
-            this.maxFillRow = Math.ceil(this.numOfRows / 2);
+            this.maxFillRow = Math.floor(this.numOfRows / 2);
+            this.baseRow    = 4;
+            this.rowOffset  = 2;
             this.injectMatrixWithTiles(); // Maybe remove
-        }
 
-        injectMatrixWithTiles() {
-            let row = -1;
-            while (++row < this.numOfRows) {
-
-                let col = -1;
-                while (++col < this.numOfCols) {
-                    this.matrix[row][col] = this.randomTile(row);
-                }
-            }
-        }
-
-        randomTile(row) {
-            switch ( true ) {
-                case row === 0:
-                    return this.tiles.lava;
-
-                case row < 2:
-                    return this.tiles.dirt;
-
-                // case 2 <= row < this.maxFillRow:
-                //     return this.tiles.leaf;
-
-                default:
-                    return null;
-            }
-        }
-
-        injectTree(row, col) {
-            this.matrix[row][col];
         }
 
         getTile(row, col) {
             return this.matrix[row][col];
         }
 
-        setTile(row, col, newTile) { //will update gridui upon change
+        setTile(row, col, newTile) { // will update gridui upon change
             this.matrix[row][col] = newTile;
             this.callbacks[row][col] && this.callbacks[row][col](newTile);
         }
@@ -190,6 +162,109 @@
         onChange(row, col, func) {
             this.callbacks[row][col] = func;
         }
+
+        injectMatrixWithTiles() {
+            for (let row = 0; row < this.numOfRows; row++) {
+                for (let col = 0; col < this.numOfCols; col++){
+
+                    const tile = this.randomTile(row, col);
+                    this.matrix[row][col] = !!tile ? tile : null;
+                }
+            }
+            this.polishItUp();
+        }
+
+        randomTile(row, col) {
+            switch ( true ) {
+                case row === 0:
+                    return this.tiles.lava;
+
+                case row < this.baseRow:
+                    return this.tiles.dirt;
+
+                case ( this.baseRow <= row && row <= (this.maxFillRow - this.rowOffset) ):
+                    if (this.hasTileBeneath(row, col) &&
+                        this.matrix[row - 1][col].name === 'dirt')
+                        if ( this.withProbaOf(0.7) ) {
+                            return this.tiles.dirt;
+
+                        } else if (this.withProbaOf(0.3) &&
+                            this.matrix[row - 1][col].name === 'dirt') {
+                            return this.tiles.rock;
+
+                        } else if (this.withProbaOf(0.1) && 
+                                 !!this.matrix[row - 1] &&
+                                 !!this.matrix[row - 1][col] &&
+                                   this.matrix[row - 1][col].name === 'dirt') {
+
+                            return this.tiles.tree;
+                        }
+                    break;
+
+                // case ( (this.baseRow) <= row && row < (this.maxFillRow) ):
+                //     if (this.hasTileBeneath(row, col))
+
+                //         if (this.withProbaOf(0.4) &&
+                //             this.matrix[row - 1][col].name === 'dirt') {
+                //             return this.tiles.rock;
+                //         } else if (this.withProbaOf(0.2) && 
+                //                  !!this.matrix[row - 1] &&
+                //                  !!this.matrix[row - 1][col] &&
+                //                    this.matrix[row - 1][col].name === 'dirt') {
+
+                //             return this.tiles.tree;
+                //         }
+                    // break;
+
+                default:
+                    return null;
+            }
+        }
+
+        // add trees and grass
+        polishItUp() {
+            for (let row = 0; row < this.numOfRows; row++){
+                if ( !!this.matrix[row + 1] ) {
+                    for (let col = 0; col < this.numOfCols; col++) {
+
+                        if (!!this.matrix[row][col] &&
+                            !this.hasTileAbove(row, col) &&
+                             this.matrix[row][col].name === 'dirt') {
+
+                            this.matrix[row][col] = this.tiles.grass;
+                        } else if (!!this.matrix[row][col] &&
+                                    !this.hasTileAbove(row, col) &&
+                                     this.matrix[row][col].name === 'tree') {
+                            this.injectTree(row, col);
+                        }
+                    }
+                }
+            }   
+        }
+
+        hasTileAbove(row, col) {
+            return !!this.matrix[row + 1][col];
+        }
+
+        hasTileBeneath(row, col) {
+            return !!this.matrix[row - 1][col];
+        }
+
+        injectTree(row, col) {
+            for (let i = 0; i < 3; i++) {
+                // Trunk
+                this.matrix[row + i][col] = this.tiles.tree;
+                // Leaves
+                this.matrix[row + 3 + i][col - 1] = this.tiles.leaf;
+                this.matrix[row + 3 + i][col]     = this.tiles.leaf;
+                this.matrix[row + 3 + i][col + 1] = this.tiles.leaf;
+            }   
+        }
+
+        withProbaOf(n) {
+            return !!n && Math.random() <= n;
+        }
+
     }
 
     class TileGridUI {
@@ -226,7 +301,7 @@
 
                 let col = -1;
                 while (++col < this.numOfCols) {
-                    const $tile = this.grid.matrix[row][col] ? this.createTileNode(this.grid.matrix[row][col].imgPath) : this.createTileNode('#');
+                    const $tile = this.grid.matrix[row][col] ? this.createTileNode(this.grid.matrix[row][col].imgPath) : this.createTileNode('');
 
                     this.$node.prepend($tile);
 
@@ -241,15 +316,18 @@
     // --------------------------------------------------------------------------------------
     // General functions that may be reused outside this project
     function build2dArray(numOfRows, numOfCols) {
-        const matrix  = new Array(numOfRows);
+        const matrix  = new Array(numOfRows).fill(null);
 
         let i = -1;
         while (++i < numOfRows) {
-            matrix[i] = new Array(numOfCols);
+            matrix[i] = new Array(numOfCols).fill(null);
         }
         return matrix;
     }
 
+    function withProbaOf(n) {
+        return !!n && Math.random() <= n;
+    }
     // --------------------------------------------------------------------------------------
     // And this is where all the magic happens
     Minecraft.init();
