@@ -3,23 +3,23 @@
 (function (global) {
 
     global.createTool = function (name, tileType) {
-        return new Tool (name, tileType);
+        return new Tool(name, tileType);
     }
 
     global.createTile = function (name) {
-        return new Tile (name);
+        return new Tile(name);
     }
 
     global.createGameSession = function (tools, tiles) {
-        return new GameSession (tools, tiles);
+        return new GameSession(tools, tiles);
     }
 
     global.createTileGrid = function (matrix, callbacksMat, tiles) {
-        return new TileGrid (matrix, callbacksMat, tiles);
+        return new TileGrid(matrix, callbacksMat, tiles);
     }
 
     global.createTileGridUI = function (tileGridInstance, gameSessionInstance, tileSize) {
-        return new TileGridUI (tileGridInstance, gameSessionInstance, tileSize);
+        return new TileGridUI(tileGridInstance, gameSessionInstance, tileSize);
     }
 
     class GameElement {
@@ -66,51 +66,110 @@
             this.numOfRows = matrix.length
             this.numOfCols = matrix[0].length
             this.maxFillRow = Math.ceil(this.numOfRows / 2);
+            this.baseRow = 4;
+            this.rowOffset = 2;
             this.injectMatrixWithTiles(); // Maybe remove
-        }
-
-        injectMatrixWithTiles() {
-            let row = -1;
-            while (++row < this.numOfRows) {
-
-                let col = -1;
-                while (++col < this.numOfCols) {
-                    this.matrix[row][col] = this.randomTile(row);
-                }
-            }
-        }
-
-        randomTile(row) {
-            switch (true) {
-                case row === 0:
-                    return this.tiles.lava;
-
-                case row < 2:
-                    return this.tiles.dirt;
-
-                // case 2 <= row < this.maxFillRow:
-                //     return this.tiles.leaf;
-
-                default:
-                    return null;
-            }
-        }
-
-        injectTree(row, col) {
-            this.matrix[row][col];
         }
 
         getTile(row, col) {
             return this.matrix[row][col];
         }
 
-        setTile(row, col, newTile) { //will update gridui upon change
+        setTile(row, col, newTile) { // will update gridui upon change
             this.matrix[row][col] = newTile;
             this.callbacks[row][col] && this.callbacks[row][col](newTile);
         }
 
         onChange(row, col, func) {
             this.callbacks[row][col] = func;
+        }
+
+        injectMatrixWithTiles() {
+            for (let row = 0; row < this.numOfRows; row++) {
+                for (let col = 0; col < this.numOfCols; col++) {
+
+                    const tile = this.randomTile(row, col);
+                    this.matrix[row][col] = !!tile ? tile : null;
+                }
+            }
+            this.polishItUp();
+        }
+        // add trees and grass
+        polishItUp() {
+            for (let row = 0; row < this.numOfRows; row++) {
+                if (!!this.matrix[row + 1]) {
+                    for (let col = 0; col < this.numOfCols; col++) {
+
+                        if (!!this.matrix[row][col] &&
+                            !this.hasTileAbove(row, col) &&
+                            this.matrix[row][col].name === 'dirt') {
+
+                            this.matrix[row][col] = this.tiles.grass;
+                        } else if (!!this.matrix[row][col] &&
+                            !this.hasTileAbove(row, col) &&
+                            this.matrix[row][col].name === 'tree') {
+                            this.injectTree(row, col);
+                        }
+                    }
+                }
+            }
+
+        }
+
+        hasTileAbove(row, col) {
+            return !!this.matrix[row + 1][col];
+        }
+
+        hasTileBeneath(row, col) {
+            return !!this.matrix[row - 1][col];
+        }
+
+        injectTree(row, col) {
+            for (let i = 0; i < 3; i++) {
+                // Trunk
+                this.matrix[row + i][col] = this.tiles.tree;
+                // Leaves
+                this.matrix[row + 3 + i][col - 1] = this.tiles.leaf;
+                this.matrix[row + 3 + i][col] = this.tiles.leaf;
+                this.matrix[row + 3 + i][col + 1] = this.tiles.leaf;
+            }
+        }
+
+        withProbaOf(n) {
+            return !!n && Math.random() <= n;
+        }
+
+        randomTile(row, col) {
+            switch (true) {
+                case row === 0:
+                    return this.tiles.lava;
+
+                case row < this.baseRow:
+                    return this.tiles.dirt;
+
+                case (this.baseRow <= row && row <= (this.maxFillRow - this.rowOffset)):
+                    if (this.hasTileBeneath(row, col) &&
+                        this.matrix[row - 1][col].name === 'dirt')
+
+                        if (this.withProbaOf(0.7)) {
+                            return this.tiles.dirt;
+
+                        } else if (this.withProbaOf(0.3) &&
+                            this.matrix[row - 1][col].name === 'dirt') {
+                            return this.tiles.rock;
+
+                        } else if (this.withProbaOf(0.1) &&
+                            !!this.matrix[row - 1] &&
+                            !!this.matrix[row - 1][col] &&
+                            this.matrix[row - 1][col].name === 'dirt') {
+
+                            return this.tiles.tree;
+                        }
+                    break;
+
+                default:
+                    return null;
+            }
         }
     }
 
@@ -223,10 +282,10 @@
                 this.$countTiles[tile] = $('<div />').css({
                     'background': 'url(' + this.session.tiles[tile].imgPath + ')',
                     'background-size': 'contain',
-                })  .attr('id', 'count-' + tile)
+                }).attr('id', 'count-' + tile)
                     .html(this.session.count[tile])
                     .appendTo(this.$tileContainer[tile]);
-                    this.$tileContainer[tile].append($('<p />').html(this.session.tiles[tile].name));
+                this.$tileContainer[tile].append($('<p />').html(this.session.tiles[tile].name));
                 $parentNodeTiles.append(this.$tileContainer[tile]);
 
                 this.$tileContainer[tile].on('click', function () {
@@ -238,7 +297,7 @@
             }
         }
 
-        updateCounter ($countTileser, $countTileserParent, count) {
+        updateCounter($countTileser, $countTileserParent, count) {
             $countTileser.html(count);
             if (count === 0) $countTileserParent.addClass('empty');
             if (count === 1) $countTileserParent.removeClass('empty');

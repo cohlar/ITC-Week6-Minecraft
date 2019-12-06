@@ -4,13 +4,17 @@
     --toolkitWidth: 150px;  /* J'ai pas reussi a l'utiliser... */
 }
 
+body {
+    
+    background-color: black;
+}
+
 #game-container {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     min-height: 100%;
-    /* width: ( 100vw - 150px ); */
     flex-grow: 1;
     background: url("../img/tiles/dirt.png");
     overflow-x: scroll;
