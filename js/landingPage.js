@@ -1,0 +1,1 @@
+// will basically generate all the tools and tiles from the game js for the tutorial part
