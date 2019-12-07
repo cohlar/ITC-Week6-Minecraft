@@ -144,10 +144,10 @@
 
         // add trees and grass
         polishItUp() {
-            for (let row = this.numOfRows; row > 0; row--) {
+            for (let row = this.numOfRows; row >= 0; row--) {
                 if (!!this.matrix[row + 1]) {
 
-                    for (let col = this.numOfCols; col > 0; col--) {
+                    for (let col = this.numOfCols; col >= 0; col--) {
                         if ( !!this.matrix[row][col] &&
                               !this.hasTileAbove(row, col) ) {
 
