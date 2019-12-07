@@ -1,5 +1,6 @@
 body {
     flex-direction: column;
+    min-width: 950px;
 }
 
 header {
@@ -38,12 +39,52 @@ header .play-btn-container {
 
 #tutorial {
     display: flex;
+    flex-direction: column;
     align-self: center;
-    width: 75vw;
+    padding: 10px 25px;
+}
+
+.tool {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.tool .tool-name {
+    min-width: 70px;
+    max-width: 70px;
+    text-align: center;
+}
+
+.tool .tool-name img, .tile img {
+    height: 54px;
+    width: 54px;
+}
+
+.tool .tool-description {
+    min-width: 350px;
+    max-width: 350px;
+    margin: 0 40px;
+}
+
+.tile-list {
+    display: flex;
+}
+
+.tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 15px;
 }
 
 footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
     height: 75px;
     width: 100%;
+    color: white;
     background: rgba(0,0,0,0.8);
 }
