@@ -6,6 +6,7 @@ window.onload = function () {
 
     const Minecraft = {
         html: {
+            $toolkit: $( '#toolkit' ),
             $toolkitToolsContainer: $( '#tools-container' ),
             $toolkitTilesContainer: $( '#tiles-container' ),
             $gameContainer:         $( '#game-container' ),
@@ -13,7 +14,7 @@ window.onload = function () {
         },
 
         tools: {
-            pickaxe: createTool('pickaxe', ['rock', 'stone', 'gate', 'diamond']),
+            pickaxe: createTool('pickaxe', ['rock', 'stone', 'diamond']),
             shovel:  createTool('shovel',  ['dirt', 'grass']),
             axe:     createTool('axe',     ['tree', 'leaf']),
             bucket:  createTool('bucket',  ['lava']),
@@ -24,12 +25,10 @@ window.onload = function () {
             grass:   createTile('grass'),
             stone:   createTile('stone'),
             dirt:    createTile('dirt'),
-            gate:    createTile('gate'),
             lava:    createTile('lava'),
             leaf:    createTile('leaf'),
             rock:    createTile('rock'),
             tree:    createTile('tree'),
-            tnt:     createTile('tnt'),
             cloud:   createTile('cloud'),
         },
 
@@ -47,6 +46,8 @@ window.onload = function () {
 
     // Event handler
     Minecraft.startGame = function () {
+
+        this.html.$toolkit.css('display', 'flex');
 
         this.numOfRows        = Math.floor($( window ).height() / this.tileSize) > 8 ? Math.floor($( window ).height() / this.tileSize) : 8;
         const gridMatrix      = build2dArray(this.numOfRows, this.numOfCols);

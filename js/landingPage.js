@@ -5,17 +5,15 @@ const tiles = {
     grass:   createTile('grass'),
     stone:   createTile('stone'),
     dirt:    createTile('dirt'),
-    gate:    createTile('gate'),
     lava:    createTile('lava'),
     leaf:    createTile('leaf'),
     rock:    createTile('rock'),
     tree:    createTile('tree'),
-    tnt:     createTile('tnt'),
     cloud:   createTile('cloud'),
 };
 
 const tools = {
-    pickaxe: createTool('pickaxe', [tiles.rock, tiles.stone, tiles.gate, tiles.diamond]),
+    pickaxe: createTool('pickaxe', [tiles.rock, tiles.stone, tiles.diamond]),
     shovel:  createTool('shovel',  [tiles.dirt, tiles.grass]),
     axe:     createTool('axe',     [tiles.tree, tiles.leaf]),
     bucket:  createTool('bucket',  [tiles.lava]),
