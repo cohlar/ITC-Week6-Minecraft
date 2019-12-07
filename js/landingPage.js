@@ -29,7 +29,7 @@ for (let i in tools) {
                 ${tools[i].name}
             </div>
             <div class="tool-description">
-                ${firstLetterUpperCase(tools[i].name)} allows you to collect the following types of tiles:
+                The ${tools[i].name} tool allows you to collect the following types of tiles:
             </div>
             <div class="tile-list">
                 ${tools[i].tileTypes.map( tile =>
@@ -37,12 +37,8 @@ for (let i in tools) {
                         '<img src="' + tile.imgPath +'" />' +
                         tile.name +
                     '</div>'
-                )}
+                ).join('')}
             </div>
         </div>
         `).appendTo($tutorial);
-}
-
-function firstLetterUpperCase (string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
 }
