@@ -30,12 +30,13 @@ const Minecraft = {
         rock:    createTile('rock'),
         tree:    createTile('tree'),
         tnt:     createTile('tnt'),
+        cloud:   createTile('cloud'),
     },
 
     tileGrid:   undefined,
     tileGridUI: undefined,
     numOfRows:  undefined,
-    numOfCols:  100,
+    numOfCols:  200,
     tileSize:   50,   // in px
 }
 
@@ -47,7 +48,7 @@ Minecraft.init      = function () {
 // Event handler
 Minecraft.startGame = function () {
 
-    this.numOfRows        = Math.floor($( window ).height() / this.tileSize)
+    this.numOfRows        = Math.floor($( window ).height() / this.tileSize) > 8 ? Math.floor($( window ).height() / this.tileSize) : 8;
     const gridMatrix      = build2dArray(this.numOfRows, this.numOfCols);
     const callbacksMatrix = build2dArray(this.numOfRows, this.numOfCols);
 

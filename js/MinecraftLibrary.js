@@ -68,10 +68,10 @@
             this.tiles      = tiles;
             this.numOfRows  = matrix.length
             this.numOfCols  = matrix[0].length
-            this.maxFillRow = Math.ceil(this.numOfRows / 2.5);
-            this.baseRow    = Math.ceil(this.numOfRows / 4) //4;
+            this.maxFillRow = Math.ceil(this.numOfRows / 2.5) > 2 ? Math.ceil(this.numOfRows / 2.5) : 3;
+            this.baseRow    = Math.floor(this.numOfRows / 4) > 2 ?  Math.floor(this.numOfRows / 4) : 2;
             this.rowOffset  = 2;
-            this.injectMatrixWithTiles(); // Maybe remove
+            this.injectMatrixWithTiles();
         }
 
         getTile(row, col) {
@@ -112,32 +112,30 @@
 
         randomTile(row, col) {
             switch (true) {
-                case row === 0:
+
+                case ( row === 0 ):
                     return (this.withProbaOf(0.98) ? this.tiles.lava : this.tiles.diamond);
 
-                case row < this.baseRow:
+                case ( row < this.baseRow ):
                     return this.tiles.dirt;
 
-                case (this.baseRow <= row && row <= (this.maxFillRow - this.rowOffset)):
+                case ( this.baseRow <= row && row <= (this.maxFillRow - this.rowOffset) ):
                     if (this.hasTileBeneath(row, col) &&
                         this.matrix[row - 1][col].name === 'dirt')
 
                         if (this.withProbaOf(0.7)) {
                             return this.tiles.dirt;
 
-                        } else if (this.withProbaOf(0.3) &&
-                                   this.matrix[row - 1][col].name === 'dirt') {
-
+                        } else if (this.withProbaOf(0.3)) {
                             return (this.withProbaOf(0.5) ? this.tiles.rock : this.tiles.stone);
 
-                        } else if (this.withProbaOf(0.1) &&
-                            !!this.matrix[row - 1] &&
-                            !!this.matrix[row - 1][col] &&
-                              this.matrix[row - 1][col].name === 'dirt') {
-
+                        } else if (this.withProbaOf(0.1)) {
                             return this.tiles.tree;
                         }
                     break;
+
+                case ( row === (this.maxFillRow + this.rowOffset) ):
+                    return this.withProbaOf(0.01) && this.tiles.cloud;
 
                 default:
                     return null;
@@ -146,21 +144,25 @@
 
         // add trees and grass
         polishItUp() {
-            for (let row = 0; row < this.numOfRows; row++) {
+            for (let row = this.numOfRows; row > 0; row--) {
                 if (!!this.matrix[row + 1]) {
-                    for (let col = 0; col < this.numOfCols; col++) {
 
-                        if (!!this.matrix[row][col] &&
-                             !this.hasTileAbove(row, col) &&
-                              this.matrix[row][col].name === 'dirt') {
+                    for (let col = this.numOfCols; col > 0; col--) {
+                        if ( !!this.matrix[row][col] &&
+                              !this.hasTileAbove(row, col) ) {
 
-                            this.matrix[row][col] = this.tiles.grass;
+                            if (this.matrix[row][col].name === 'dirt') {
+                                this.matrix[row][col] = this.tiles.grass;
 
-                        } else if (!!this.matrix[row][col] &&
-                                    !this.hasTileAbove(row, col) &&
-                                     this.matrix[row][col].name === 'tree') {
-                                     
-                            this.injectTree(row, col);
+                            } else if (this.matrix[row][col].name === 'tree') {
+                                this.injectTree(row, col);
+                            }
+                        }
+
+                        if (row === (this.maxFillRow + this.rowOffset) &&
+                            !!this.matrix[row][col] &&
+                              this.matrix[row][col].name === 'cloud') {
+                            this.injectCloud(row, col);
                         }
                     }
                 }
@@ -179,7 +181,29 @@
         }
 
         injectCloud(row, col) {
-
+          try {
+                if (this.matrix[row + 2][col - 5] === null &&
+                    this.matrix[row + 2][col - 5] === null &&
+                    this.matrix[row + 2][col + 2] === null ) {
+                    // row 0
+                    this.matrix[row][col - 1] = this.tiles.cloud;
+                    // row 1
+                    for (let i = 0; i < 8; i++) {
+                        this.matrix[row + 1][(col - 5) + i] = this.tiles.cloud;
+                    }
+                    // row 2
+                    for (let i = 0; i < 4; i++) {
+                        this.matrix[row + 2][col - 1 - i] = this.tiles.cloud;
+                    }
+                    for (let i = 0; i < 2;  i++) {
+                        this.matrix[row + 2][col + 1 + i] = this.tiles.cloud;
+                    }
+                    // row 3
+                    this.matrix[row + 3][col - 2] = this.tiles.cloud;
+                }
+            } catch {
+                return;
+            }
         }
     }
 
@@ -210,6 +234,13 @@
             return ($tileNode);
         }
 
+        createCloudTileNode() {
+            const $tileNode = $('<div />');
+                  $tileNode.css('background-color', 'white');
+
+            return ($tileNode);
+        }
+
         render($parentNodeGrid, $parentNodeTools, $parentNodeTiles) {
             this.renderGrid($parentNodeGrid);
             this.renderToolkit($parentNodeTools, $parentNodeTiles, $parentNodeGrid);
@@ -221,7 +252,17 @@
 
             for (let row = 0; row < this.numOfRows; row++) {
                 for (let col = 0; col < this.numOfCols; col++) {
-                    const $tile = this.grid.matrix[row][col] ? this.createTileNode(this.grid.matrix[row][col].imgPath) : this.createTileNode('#');
+                    let $tile;
+
+                    if (!!this.grid.matrix[row][col]) {
+                        if (this.grid.matrix[row][col].name === 'cloud'){
+                            $tile = this.createCloudTileNode()
+                        } else {
+                            $tile = this.createTileNode(this.grid.matrix[row][col].imgPath);
+                        }
+                    } else {
+                       $tile = this.createTileNode('#');
+                    }
 
                     this.$node.prepend($tile);
 
@@ -230,27 +271,30 @@
                     });
 
                     $tile.on('click', function () {
+                        const tile = this.grid.matrix[row][col];
+
                         if (this.session.activeElement instanceof Tool && 
-                          !!this.grid.matrix[row][col] &&
-                            this.session.activeElement.tileTypes.includes(this.grid.matrix[row][col].name)) {
+                            !!tile &&
+                            this.session.activeElement.tileTypes.includes(tile.name)) {
 
                             this.updateCounter(
-                                  this.$countTiles   [this.grid.matrix[row][col].name],
-                                  this.$tileContainer[this.grid.matrix[row][col].name],
-                                ++this.session.count [this.grid.matrix[row][col].name]
+                                  this.$countTiles   [tile.name],
+                                  this.$tileContainer[tile.name],
+                                ++this.session.count [tile.name]
                             );
                             this.grid.setTile(row, col, '');
                             return;
                         }
 
-                        if (this.session.activeElement instanceof Tile && !this.grid.matrix[row][col] &&
+                        if (this.session.activeElement instanceof Tile &&
+                            ( !tile || tile.name === 'cloud' ) &&
                             this.session.count[this.session.activeElement.name] > 0) {
 
                             this.grid.setTile(row, col, this.session.activeElement);
                             this.updateCounter(
-                                  this.$countTiles[this.session.activeElement.name],
+                                  this.$countTiles   [this.session.activeElement.name],
                                   this.$tileContainer[this.session.activeElement.name],
-                                --this.session.count[this.session.activeElement.name]
+                                --this.session.count [this.session.activeElement.name]
                             );
                             return;
                         }
@@ -285,30 +329,33 @@
 
                 $parentNodeTools.append($toolContainer);
             }
+
             for (const tile in this.session.tiles) {
-                this.$tileContainer[tile] = $( '<div />' ).attr({
-                    'id': tile,
-                    'class': 'toolkit-element empty',
-                    'data-type': this.session.tiles[tile].types,
-                });
+                if (tile !== 'cloud') {
+                    this.$tileContainer[tile] = $( '<div />' ).attr({
+                        'id': tile,
+                        'class': 'toolkit-element empty',
+                        'data-type': this.session.tiles[tile].types,
+                    });
 
-                this.$countTiles[tile] = $( '<div />' ).css({
-                    'background': 'url(' + this.session.tiles[tile].imgPath + ')',
-                    'background-size': 'contain',
-                }).attr('id', 'count-' + tile)
-                  .html(this.session.count[tile])
-                  .appendTo(this.$tileContainer[tile]);
+                    this.$countTiles[tile] = $( '<div />' ).css({
+                        'background': 'url(' + this.session.tiles[tile].imgPath + ')',
+                        'background-size': 'contain',
+                    }).attr('id', 'count-' + tile)
+                      .html(this.session.count[tile])
+                      .appendTo(this.$tileContainer[tile]);
 
-                this.$tileContainer[tile].append($( '<p />' ).html(this.session.tiles[tile].name));
+                    this.$tileContainer[tile].append($( '<p />' ).html(this.session.tiles[tile].name));
 
-                this.$tileContainer[tile].on('click', function () {
-                    this.session.activeElement = this.session.tiles[tile];
-                    $parentNodeGrid.css('cursor', 'url(' + this.session.activeElement.cursorImgPath + '), auto');
-                    $( '.toolkit-element.active' ).toggleClass('active');
-                    this.$tileContainer[tile].toggleClass('active');
-                }.bind(this));
+                    this.$tileContainer[tile].on('click', function () {
+                        this.session.activeElement = this.session.tiles[tile];
+                        $parentNodeGrid.css('cursor', 'url(' + this.session.activeElement.cursorImgPath + '), auto');
+                        $( '.toolkit-element.active' ).toggleClass('active');
+                        this.$tileContainer[tile].toggleClass('active');
+                    }.bind(this));
 
-                $parentNodeTiles.append(this.$tileContainer[tile]);
+                    $parentNodeTiles.append(this.$tileContainer[tile]);
+                }
             }
         }
 
